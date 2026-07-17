@@ -2508,27 +2508,37 @@ for epoch in range(10):
     },
 ]
 
-def generate_tutorial(day_num):
-    """Generate tutorial based on day number"""
-    idx = day_num % len(TUTORIALS)
+import argparse
+
+def generate_tutorial(day_num, session):
+    """Generate tutorial based on day number and session"""
+    # Each session gets a different tutorial index
+    session_offset = {"morning": 0, "afternoon": 1, "evening": 2}
+    offset = session_offset.get(session, 0)
+    idx = (day_num + offset) % len(TUTORIALS)
     return TUTORIALS[idx]
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--session", choices=["morning", "afternoon", "evening"], default="morning")
+    args = parser.parse_args()
+
     now = datetime.now(WIB)
     today = now.strftime("%Y-%m-%d")
     day_num = now.timetuple().tm_yday
 
-    tutorial = generate_tutorial(day_num)
+    tutorial = generate_tutorial(day_num, args.session)
 
     # Create output directory
     os.makedirs("snippets", exist_ok=True)
 
-    # Generate markdown
-    filename = f"snippets/{today}.md"
+    # Generate markdown with session in filename
+    filename = f"snippets/{today}-{args.session}.md"
     with open(filename, "w", encoding="utf-8") as f:
         f.write(f"# {tutorial['title']}\n\n")
         f.write(f"**Kategori:** {tutorial['category']} | ")
         f.write(f"**Difficulty:** {tutorial['difficulty']} | ")
+        f.write(f"**Session:** {args.session.title()} | ")
         f.write(f"**Date:** {today}\n\n")
         f.write("---\n\n")
         f.write(tutorial['content'])
