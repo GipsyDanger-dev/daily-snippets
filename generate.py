@@ -2533,13 +2533,14 @@ def main():
     os.makedirs("snippets", exist_ok=True)
 
     # Generate markdown with session in filename
-    filename = f"snippets/{today}-{args.session}.md"
+    timestamp = now.strftime("%H%M")
+    filename = f"snippets/{today}-{args.session}-{timestamp}.md"
     with open(filename, "w", encoding="utf-8") as f:
         f.write(f"# {tutorial['title']}\n\n")
         f.write(f"**Kategori:** {tutorial['category']} | ")
         f.write(f"**Difficulty:** {tutorial['difficulty']} | ")
         f.write(f"**Session:** {args.session.title()} | ")
-        f.write(f"**Date:** {today}\n\n")
+        f.write(f"**Date:** {today} | **Generated:** {now.strftime('%H:%M WIB')}\n\n")
         f.write("---\n\n")
         f.write(tutorial['content'])
 
