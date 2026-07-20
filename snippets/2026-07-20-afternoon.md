@@ -1,0 +1,212 @@
+# OpenCV: Image Processing dengan Python
+
+**Kategori:** Computer Vision | **Difficulty:** Beginner | **Session:** Afternoon | **Date:** 2026-07-20
+
+---
+
+
+## Apa itu OpenCV?
+
+OpenCV (Open Source Computer Vision Library) adalah library untuk **computer vision** dan **image processing**. Digunakan untuk:
+- Image manipulation
+- Object detection
+- Face recognition
+- Video analysis
+
+## Install
+
+```bash
+pip install opencv-python
+```
+
+## Basic Operations
+
+```python
+import cv2
+import numpy as np
+
+# Read image
+img = cv2.imread('photo.jpg')
+print(img.shape)  # (height, width, channels)
+
+# Convert to grayscale
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+# Resize
+resized = cv2.resize(img, (224, 224))
+resized = cv2.resize(img, None, fx=0.5, fy=0.5)  # 50% size
+
+# Save
+cv2.imwrite('output.jpg', resized)
+```
+
+## Color Spaces
+
+```python
+import cv2
+import matplotlib.pyplot as plt
+
+img = cv2.imread('photo.jpg')
+
+# BGR to RGB (matplotlib uses RGB)
+rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+# BGR to HSV (useful for color detection)
+hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+# BGR to Grayscale
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+# Display
+fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+axes[0].imshow(rgb)
+axes[0].set_title('RGB')
+axes[1].imshow(hsv)
+axes[1].set_title('HSV')
+axes[2].imshow(gray, cmap='gray')
+axes[2].set_title('Grayscale')
+plt.savefig('color_spaces.png')
+```
+
+## Image Enhancement
+
+```python
+import cv2
+
+img = cv2.imread('photo.jpg')
+
+# Brightness and Contrast
+alpha = 1.5  # Contrast (1.0 = original)
+beta = 30    # Brightness (0 = original)
+enhanced = cv2.convertScaleAbs(img, alpha=alpha, beta=beta)
+
+# Blur (Gaussian)
+blurred = cv2.GaussianBlur(img, (5, 5), 0)
+
+# Sharpen
+kernel = np.array([[-1, -1, -1],
+                   [-1,  9, -1],
+                   [-1, -1, -1]])
+sharpened = cv2.filter2D(img, -1, kernel)
+
+# Edge detection
+edges = cv2.Canny(gray, 50, 150)
+```
+
+## Drawing on Images
+
+```python
+import cv2
+import numpy as np
+
+img = np.zeros((500, 500, 3), dtype=np.uint8)
+
+# Line
+cv2.line(img, (50, 50), (450, 450), (0, 255, 0), 3)
+
+# Rectangle
+cv2.rectangle(img, (100, 100), (300, 300), (255, 0, 0), 2)
+
+# Circle
+cv2.circle(img, (250, 250), 80, (0, 0, 255), -1)  # -1 = filled
+
+# Text
+cv2.putText(img, 'OpenCV', (150, 280),
+            cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+
+cv2.imwrite('drawing.png', img)
+```
+
+## Object Detection (Color-based)
+
+```python
+import cv2
+import numpy as np
+
+def detect_color(image_path, lower_hsv, upper_hsv):
+    img = cv2.imread(image_path)
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+    # Create mask
+    mask = cv2.inRange(hsv, lower_hsv, upper_hsv)
+
+    # Find contours
+    contours, _ = cv2.findContours(mask, cv2.RETR_TREE,
+                                    cv2.CHAIN_APPROX_SIMPLE)
+
+    for contour in contours:
+        if cv2.contourArea(contour) > 500:
+            x, y, w, h = cv2.boundingRect(contour)
+            cv2.rectangle(img, (x, y), (x+w, y+h), (0, 255, 0), 2)
+
+    return img
+
+# Detect red objects
+lower_red = np.array([0, 120, 70])
+upper_red = np.array([10, 255, 255])
+result = detect_color('image.jpg', lower_red, upper_red)
+```
+
+## Face Detection
+
+```python
+import cv2
+
+# Load cascade classifier
+face_cascade = cv2.CascadeClassifier(
+    cv2.data.haarcascades + 'haarcascade_frontalface_default.xml'
+)
+
+img = cv2.imread('photo.jpg')
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+# Detect faces
+faces = face_cascade.detectMultiScale(
+    gray,
+    scaleFactor=1.1,
+    minNeighbors=5,
+    minSize=(30, 30)
+)
+
+for (x, y, w, h) in faces:
+    cv2.rectangle(img, (x, y), (x+w, y+h), (255, 0, 0), 2)
+
+cv2.imwrite('faces_detected.jpg', img)
+print(f'Found {len(faces)} faces')
+```
+
+## Webcam Capture
+
+```python
+import cv2
+
+# Open webcam
+cap = cv2.VideoCapture(0)
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    # Display
+    cv2.imshow('Webcam', frame)
+
+    # Press 'q' to quit
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
+```
+
+## Latihan
+
+1. Deteksi wajah di video real-time
+2. Hitung objek berwarna tertentu
+3. Buat aplikasi filter Instagram sederhana
+4. Implement edge detection pada video stream
+
+## Sumber Belajar
+
+- [OpenCV Official](https://docs.opencv.org/)
+- [OpenCV Python Tutorial](https://docs.opencv.org/4.x/d6/d00/tutorial_py_root.html)
